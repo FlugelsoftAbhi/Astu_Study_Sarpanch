@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Study sets: written ONLY by the server (Admin SDK bypasses rules).
+    match /users/{uid}/sets/{id} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if false;
+    }
+
+    // Quiz attempts: owner can create, read and delete, with basic validation.
+    match /users/{uid}/attempts/{id} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['setId', 'setTitle', 'score', 'total', 'createdAt'])
+        && request.resource.data.score is int
+        && request.resource.data.total is int
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= request.resource.data.total
+        && request.resource.data.total <= 20;
+      allow update: if false;
+    }
+
+    // Usage counters (rate limit): server only.
+    match /users/{uid}/usage/{day} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

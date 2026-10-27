@@ -1,0 +1,79 @@
+:root {
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --ink: #12263a;
+  --muted: #5b6b7b;
+  --line: #d9e0e8;
+  --brand: #1d4e89;
+  --mark: #ffe066;
+  --good: #1b7f5c;
+  --bad: #b3261e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1620; --surface: #16212e; --ink: #e8eef5; --muted: #98a6b5;
+    --line: #2a3a4c; --brand: #7fb2ee; --mark: #5c4b00; --good: #4cc79b; --bad: #ff8a80;
+  }
+}
+* { box-sizing: border-box; }
+html { color-scheme: light dark; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55;
+}
+h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; line-height: 1.2; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 0 0 .5rem; }
+a { color: var(--brand); }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+.header {
+  display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; justify-content: space-between;
+  padding: .75rem 1rem; border-bottom: 1px solid var(--line); background: var(--surface);
+}
+.header nav { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.brand { font-family: Georgia, serif; font-weight: 700; font-size: 1.2rem; text-decoration: none; color: var(--ink);
+  background: linear-gradient(transparent 60%, var(--mark) 60%); }
+.btn {
+  background: var(--brand); color: #fff; border: 1px solid var(--brand); border-radius: 6px;
+  padding: .55rem 1rem; font: inherit; cursor: pointer;
+}
+@media (prefers-color-scheme: dark) { .btn { color: #0e1620; } }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--brand); }
+.btn.danger { background: transparent; color: var(--bad); border-color: var(--bad); }
+.muted { color: var(--muted); }
+.center { text-align: center; padding: 2rem 0; }
+.error { color: var(--bad); font-weight: 600; }
+.row { display: flex; gap: .75rem; align-items: center; }
+.between { justify-content: space-between; }
+textarea {
+  width: 100%; min-height: 220px; padding: .75rem; font: inherit; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px; resize: vertical;
+}
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+.list { list-style: none; padding: 0; margin: 0; }
+.list li { display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  padding: .75rem 0; border-bottom: 1px solid var(--line); }
+.tabs { display: flex; gap: .5rem; margin: 1rem 0; border-bottom: 1px solid var(--line); }
+.tab { background: none; border: 0; border-bottom: 3px solid transparent; padding: .6rem 1rem; font: inherit;
+  color: var(--muted); cursor: pointer; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--brand); font-weight: 600; }
+.flash {
+  width: 100%; min-height: 200px; display: flex; flex-direction: column; gap: .75rem; justify-content: center;
+  align-items: center; text-align: center; padding: 1.5rem; margin-bottom: 1rem; font: inherit; color: var(--ink);
+  background: var(--surface); border: 2px solid var(--line); border-radius: 8px; cursor: pointer;
+}
+.flash.back { background: var(--mark); border-color: var(--mark); }
+.flash-side { font-size: .85rem; color: var(--muted); }
+.flash-text { font-size: 1.25rem; }
+.option { display: flex; gap: .75rem; padding: .75rem; margin: .5rem 0; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+.option.picked { border-color: var(--brand); background: var(--mark); }
+.review { padding: .75rem 1rem; margin: .75rem 0; border-left: 4px solid; background: var(--surface); }
+.review.ok { border-color: var(--good); } .review.bad { border-color: var(--bad); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: .5rem; border-bottom: 1px solid var(--line); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+.stat strong { display: block; font-size: 1.8rem; font-family: Georgia, serif; }
+footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 2rem 1rem; }
+@media (prefers-reduced-motion: no-preference) { .btn, .option, .flash { transition: background .15s, border-color .15s; } }
