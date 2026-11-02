@@ -12,22 +12,28 @@ export default function Quiz({ setId, set }: { setId: string; set: StudySet }) {
   const [answers, setAnswers] = useState<(number | null)[]>(Array(set.quiz.length).fill(null));
   const [done, setDone] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const score = answers.reduce<number>((s, a, i) => (a === set.quiz[i].answerIndex ? s + 1 : s), 0);
+  const total = set.quiz.length;
+  const scorePct = Math.round((score / total) * 100);
 
   const finish = async () => {
     setDone(true);
     if (!user) return;
+    setSaving(true);
     try {
       await addDoc(collection(db, "users", user.uid, "attempts"), {
         setId,
         setTitle: set.title,
         score,
-        total: set.quiz.length,
+        total,
         createdAt: serverTimestamp(),
       });
     } catch {
-      setSaveError("Your score could not be saved to your progress page.");
+      setSaveError("Your score could not be automatically recorded to your progress vault.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -39,50 +45,154 @@ export default function Quiz({ setId, set }: { setId: string; set: StudySet }) {
   };
 
   if (done) {
+    let motivationalTitle = "GOOD EFFORT! TIME TO DRILL AGAIN.";
+    let motivationalBadge = "RETRY & CONQUER";
+    if (score === total) {
+      motivationalTitle = "ABSOLUTE DOMINANCE. ZERO EXCUSES.";
+      motivationalBadge = "🏆 CHAMPION MINDSET";
+    } else if (score >= total - 1) {
+      motivationalTitle = "WARRIOR STANDARD. ALMOST FLAWLESS.";
+      motivationalBadge = "⚡ HIGH-OCTANE MASTERY";
+    }
+
     return (
-      <div>
-        <h3>You scored {score} out of {set.quiz.length}</h3>
-        {saveError && <p className="error">{saveError}</p>}
-        {set.quiz.map((q, i) => {
-          const ok = answers[i] === q.answerIndex;
-          return (
-            <div key={i} className={`review ${ok ? "ok" : "bad"}`}>
-              <p><strong>{i + 1}. {q.question}</strong></p>
-              <p>Your answer: {answers[i] === null ? "none" : q.options[answers[i]!]}</p>
-              {!ok && <p>Correct answer: {q.options[q.answerIndex]}</p>}
-              <p className="muted">{q.explanation}</p>
-            </div>
-          );
-        })}
-        <button className="btn" onClick={restart}>Try again</button>
+      <div className="quiz-result-view animate-fade-in">
+        <div className="quiz-score-header glass-panel center">
+          <span className="quiz-result-badge">{motivationalBadge}</span>
+          <h2 className="quiz-score-title">
+            You Scored {score} / {total} ({scorePct}%)
+          </h2>
+          <p className="quiz-score-sub muted">{motivationalTitle}</p>
+          {saving && <p className="muted">Recording attempt to your progress vault…</p>}
+          {saveError && <p className="error">{saveError}</p>}
+
+          <div className="quiz-score-actions">
+            <button className="btn btn-primary-glow btn-lg" onClick={restart}>
+              ↻ Retry Quiz & Reinforce
+            </button>
+          </div>
+        </div>
+
+        <h3 className="review-heading">Diagnostic Breakdown</h3>
+        <div className="quiz-breakdown-list">
+          {set.quiz.map((q, i) => {
+            const ok = answers[i] === q.answerIndex;
+            return (
+              <div key={i} className={`quiz-review-card glass-panel ${ok ? "review-ok" : "review-bad"}`}>
+                <div className="review-card-head">
+                  <span className={`review-status-pill ${ok ? "pill-good" : "pill-bad"}`}>
+                    {ok ? "✓ Correct" : "✕ Needs Review"}
+                  </span>
+                  <span className="review-q-num">Question {i + 1}</span>
+                </div>
+
+                <p className="review-question">
+                  <strong>{q.question}</strong>
+                </p>
+
+                <div className="review-answers-box">
+                  <p className="review-chosen">
+                    <span className="muted">Your selection: </span>
+                    <strong className={ok ? "good" : "bad"}>
+                      {answers[i] === null ? "None" : q.options[answers[i]!]}
+                    </strong>
+                  </p>
+                  {!ok && (
+                    <p className="review-correct">
+                      <span className="muted">Correct answer: </span>
+                      <strong className="good">{q.options[q.answerIndex]}</strong>
+                    </p>
+                  )}
+                </div>
+
+                <div className="review-explanation">
+                  <span className="exp-label">💡 Key Takeaway: </span>
+                  <span className="muted">{q.explanation}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
 
   const q = set.quiz[step];
+  const answeredCurrent = answers[step] !== null;
+
   return (
-    <div>
-      <p className="muted">Question {step + 1} of {set.quiz.length}</p>
-      <h3>{q.question}</h3>
-      <div role="radiogroup" aria-label="Answer options">
-        {q.options.map((o, idx) => (
-          <label key={idx} className={`option ${answers[step] === idx ? "picked" : ""}`}>
-            <input
-              type="radio"
-              name={`q${step}`}
-              checked={answers[step] === idx}
-              onChange={() => setAnswers(answers.map((a, i) => (i === step ? idx : a)))}
-            />
-            {o}
-          </label>
-        ))}
+    <div className="quiz-active-view">
+      {/* Quiz Progress Header */}
+      <div className="quiz-header-status">
+        <div className="quiz-step-meta">
+          <span className="step-tracker">
+            Question <strong>{step + 1}</strong> of {set.quiz.length}
+          </span>
+          <span className="active-badge-chip">Active Drill</span>
+        </div>
+        <div className="quiz-track-bar">
+          <div
+            className="quiz-track-fill"
+            style={{ width: `${((step + 1) / set.quiz.length) * 100}%` }}
+          />
+        </div>
       </div>
-      <div className="row between">
-        <button className="btn ghost" disabled={step === 0} onClick={() => setStep(step - 1)}>Back</button>
+
+      <div className="quiz-question-box">
+        <h3 className="quiz-question-title">{q.question}</h3>
+      </div>
+
+      {/* Transparent glass options with animated hover/selection */}
+      <div className="quiz-options-group" role="radiogroup" aria-label="Question options">
+        {q.options.map((optionText, idx) => {
+          const isSelected = answers[step] === idx;
+          return (
+            <label
+              key={idx}
+              className={`quiz-option-card ${isSelected ? "option-selected" : ""}`}
+            >
+              <input
+                type="radio"
+                name={`question-${step}`}
+                checked={isSelected}
+                onChange={() =>
+                  setAnswers((prev) => prev.map((ans, i) => (i === step ? idx : ans)))
+                }
+                className="quiz-radio-input"
+              />
+              <span className="option-radio-ring">{isSelected ? "●" : "○"}</span>
+              <span className="option-text">{optionText}</span>
+            </label>
+          );
+        })}
+      </div>
+
+      {/* Transparent Animated Action Buttons */}
+      <div className="quiz-footer-nav row between">
+        <button
+          className="btn ghost btn-glass-nav"
+          disabled={step === 0}
+          onClick={() => setStep((s) => s - 1)}
+        >
+          ← Back
+        </button>
+
         {step < set.quiz.length - 1 ? (
-          <button className="btn" disabled={answers[step] === null} onClick={() => setStep(step + 1)}>Next</button>
+          <button
+            className="btn btn-primary-glow"
+            disabled={!answeredCurrent}
+            onClick={() => setStep((s) => s + 1)}
+          >
+            Next Question →
+          </button>
         ) : (
-          <button className="btn" disabled={answers.some((a) => a === null)} onClick={finish}>Finish quiz</button>
+          <button
+            className="btn btn-primary-glow btn-finish"
+            disabled={answers.some((a) => a === null)}
+            onClick={finish}
+          >
+            🔥 Lock In & Submit Quiz
+          </button>
         )}
       </div>
     </div>
