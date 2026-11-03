@@ -67,15 +67,41 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 4. Call Gemini from the server (key never reaches the browser).
+  // 4. Call Gemini from the server with resilient model fallback.
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-    const res = await ai.models.generateContent({
-      model: process.env.GEMINI_MODEL ?? "gemini-3.8-flash",
-      contents: buildPrompt(parsed.data.text),
-      config: { responseMimeType: "application/json", temperature: 0.4 },
-    });
-    const cleaned = (res.text ?? "").replace(/^```json\s*|```$/g, "").trim();
+    const modelsToTry = Array.from(
+      new Set(
+        [
+          process.env.GEMINI_MODEL,
+          "gemini-3-flash-preview",
+          "gemini-3.5-flash",
+        ].filter(Boolean) as string[]
+      )
+    );
+
+    let resText = "";
+    let lastErr: unknown;
+    for (const model of modelsToTry) {
+      try {
+        const res = await ai.models.generateContent({
+          model,
+          contents: buildPrompt(parsed.data.text),
+          config: { responseMimeType: "application/json", temperature: 0.4 },
+        });
+        if (res.text) {
+          resText = res.text;
+          break;
+        }
+      } catch (err) {
+        lastErr = err;
+        console.warn(`Model ${model} failed, trying next fallback:`, err instanceof Error ? err.message : err);
+      }
+    }
+
+    if (!resText) throw lastErr || new Error("No response from AI model.");
+
+    const cleaned = resText.replace(/^```json\s*|```$/g, "").trim();
     const data = StudySetSchema.parse(JSON.parse(cleaned));
 
     // 5. Save under this user only.
