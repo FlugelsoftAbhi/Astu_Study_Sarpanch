@@ -76,7 +76,7 @@ export default function Home() {
             ) : (
               <button
                 className="btn btn-hero btn-primary-glow"
-                onClick={() => signIn().catch(() => alert("Sign-in was cancelled or failed."))}
+                onClick={() => signIn().catch(() => {})}
               >
                 <span>Sign In with Google</span>
                 <span className="btn-arrow">⚡</span>
@@ -217,7 +217,7 @@ export default function Home() {
             ) : (
               <button
                 className="btn btn-primary-glow btn-lg"
-                onClick={() => signIn().catch(() => alert("Sign-in was cancelled or failed."))}
+                onClick={() => signIn().catch(() => {})}
               >
                 Sign In & Start Studying →
               </button>

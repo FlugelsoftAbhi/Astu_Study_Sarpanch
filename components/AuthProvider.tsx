@@ -19,7 +19,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async () => {
-    await signInWithPopup(auth, new GoogleAuthProvider());
+    try {
+      if (!auth.app.options.apiKey) {
+        throw new Error(
+          "Firebase API Key is missing. Please ensure NEXT_PUBLIC_FIREBASE_API_KEY and other Firebase variables are configured in your Vercel Project Settings."
+        );
+      }
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string };
+      console.error("Firebase Sign-In Error:", err);
+      if (e.code === "auth/unauthorized-domain") {
+        alert(
+          "⚠️ Domain Not Authorized in Firebase!\n\n" +
+            "The domain '" +
+            (typeof window !== "undefined" ? window.location.hostname : "astu-study-sarpanch.vercel.app") +
+            "' is not in your Firebase Authorized Domains.\n\n" +
+            "To fix this:\n" +
+            "1. Open Firebase Console (https://console.firebase.google.com)\n" +
+            "2. Select your project -> Authentication -> Settings tab\n" +
+            "3. Under 'Authorized domains', click 'Add domain'\n" +
+            "4. Enter: " +
+            (typeof window !== "undefined" ? window.location.hostname : "astu-study-sarpanch.vercel.app")
+        );
+      } else if (e.code === "auth/popup-blocked") {
+        alert("The sign-in popup was blocked by your browser. Please allow popups for this site and try again.");
+      } else if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") {
+        // User closed popup
+      } else {
+        alert("Sign-in error: " + (e.message || "Failed to sign in."));
+      }
+      throw err;
+    }
   };
   const logOut = async () => {
     await signOut(auth);

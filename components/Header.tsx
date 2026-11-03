@@ -457,7 +457,7 @@ export default function Header() {
           ) : (
             <button
               className="btn btn-primary-glow btn-nav"
-              onClick={() => signIn().catch(() => alert("Sign-in was cancelled or failed."))}
+              onClick={() => signIn().catch(() => {})}
             >
               Sign in with Google
             </button>
