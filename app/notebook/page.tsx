@@ -30,6 +30,30 @@ export default function NotebookDashboard() {
   const loadNotebooks = useCallback(async () => {
     if (!user) return;
     try {
+      // Try server endpoint first
+      const token = await auth.currentUser?.getIdToken();
+      if (token) {
+        const res = await fetch("/api/notebook", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.items)) {
+            setNotebooks(
+              data.items.map((d: { id: string; title: string; briefingDoc: string; sourceName: string; createdAt?: string | Date }) => ({
+                id: d.id,
+                title: d.title || "Untitled Notebook",
+                briefingDoc: d.briefingDoc || "",
+                sourceName: d.sourceName || "Source Document",
+                createdAt: d.createdAt ? new Date(d.createdAt) : undefined,
+              }))
+            );
+            return;
+          }
+        }
+      }
+
+      // Fallback to client Firestore getDocs
       const snap = await getDocs(
         query(collection(db, "users", user.uid, "notebook_sets"), orderBy("createdAt", "desc"))
       );
@@ -89,7 +113,18 @@ export default function NotebookDashboard() {
 
   const deleteNotebook = async (id: string) => {
     if (!user || !confirm("Delete this NotebookLM study guide?")) return;
-    await deleteDoc(doc(db, "users", user.uid, "notebook_sets", id));
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (token) {
+        await fetch(`/api/notebook?id=${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      await deleteDoc(doc(db, "users", user.uid, "notebook_sets", id));
+    } catch {
+      // Ignore
+    }
     setNotebooks((prev) => prev?.filter((item) => item.id !== id) ?? null);
   };
 

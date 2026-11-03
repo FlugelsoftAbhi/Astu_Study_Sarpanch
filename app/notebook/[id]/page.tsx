@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
 import NotebookHeader from "@/components/notebook/NotebookHeader";
 import NotebookFlashcards from "@/components/notebook/NotebookFlashcards";
 import NotebookQuiz from "@/components/notebook/NotebookQuiz";
 import NotebookAudioOverview from "@/components/notebook/NotebookAudioOverview";
-import { NotebookStudySetSchema, type NotebookStudySet } from "@/lib/notebookSchema";
+import type { NotebookStudySet } from "@/lib/notebookSchema";
 
 type StudioTab = "flashcards" | "quiz" | "audio";
 
@@ -26,17 +26,66 @@ export default function NotebookViewer() {
 
   useEffect(() => {
     if (!user || !id) return;
-    getDoc(doc(db, "users", user.uid, "notebook_sets", id))
-      .then((snap) => {
-        if (snap.exists()) {
-          const parsed = NotebookStudySetSchema.safeParse(snap.data());
-          if (parsed.success) {
-            setNotebook(parsed.data);
+
+    let isMounted = true;
+
+    async function loadData() {
+      setLoading(true);
+      try {
+        // 1. Try server endpoint first (authenticated via ID token, bypasses client rules)
+        const token = await auth.currentUser?.getIdToken();
+        if (token) {
+          const res = await fetch(`/api/notebook?id=${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (isMounted && data && !data.error) {
+              setNotebook({
+                title: data.title || "Untitled Notebook",
+                briefingDoc: data.briefingDoc || data.summary || "",
+                keyConcepts: Array.isArray(data.keyConcepts) ? data.keyConcepts : [],
+                faqs: Array.isArray(data.faqs) ? data.faqs : [],
+                flashcards: Array.isArray(data.flashcards) ? data.flashcards : [],
+                quiz: Array.isArray(data.quiz) ? data.quiz : [],
+                sourceSnippet: data.sourceSnippet || "",
+                sourceName: data.sourceName || "Source Document",
+              });
+              setLoading(false);
+              return;
+            }
           }
         }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+
+        // 2. Fallback to client Firestore getDoc
+        if (user) {
+          const snap = await getDoc(doc(db, "users", user.uid, "notebook_sets", id));
+          if (snap.exists() && isMounted) {
+            const data = snap.data();
+            setNotebook({
+              title: data.title || "Untitled Notebook",
+              briefingDoc: data.briefingDoc || data.summary || "",
+              keyConcepts: Array.isArray(data.keyConcepts) ? data.keyConcepts : [],
+              faqs: Array.isArray(data.faqs) ? data.faqs : [],
+              flashcards: Array.isArray(data.flashcards) ? data.flashcards : [],
+              quiz: Array.isArray(data.quiz) ? data.quiz : [],
+              sourceSnippet: data.sourceSnippet || "",
+              sourceName: data.sourceName || "Source Document",
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Error loading notebook:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [user, id]);
 
   const copyBriefing = () => {
