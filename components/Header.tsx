@@ -437,6 +437,9 @@ export default function Header() {
       <nav className="header-right" aria-label="Main navigation">
         {user && (
           <>
+            <Link href="/notebook" className="nav-link" style={{ color: "var(--brand)", fontWeight: 700 }} title="Open Google NotebookLM Studio">
+              📓 NotebookLM
+            </Link>
             <Link href="/dashboard" className="nav-link">
               My Sets
             </Link>
@@ -444,6 +447,11 @@ export default function Header() {
               Progress
             </Link>
           </>
+        )}
+        {!user && (
+          <Link href="/notebook" className="nav-link" style={{ color: "var(--brand)", fontWeight: 700 }} title="Open Google NotebookLM Studio">
+            📓 NotebookLM
+          </Link>
         )}
         <Link href="/privacy" className="nav-link muted-link">
           Privacy

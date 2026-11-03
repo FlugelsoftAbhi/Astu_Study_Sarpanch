@@ -83,6 +83,11 @@ export default function Home() {
               </button>
             ))}
 
+          <Link href="/notebook" className="btn btn-hero ghost btn-glass-secondary" title="Google NotebookLM grounded research & study mode">
+            <span>📓 NotebookLM Studio</span>
+            <span className="btn-icon">✨</span>
+          </Link>
+
           <a href="#themes" className="btn btn-hero ghost btn-glass-secondary">
             <span>Choose Atmosphere</span>
             <span className="btn-icon">🎨</span>
