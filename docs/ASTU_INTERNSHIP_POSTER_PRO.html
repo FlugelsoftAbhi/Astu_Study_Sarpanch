@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ASTU Study Sarpanch - Final Academic Internship Poster</title>
+  <title>ASTU Study Sarpanch - Editable Academic Internship Poster</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
 
@@ -20,17 +20,17 @@
 
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0a0f1d;
+      background: #090d16;
       color: #0f172a;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 24px 16px 60px;
+      padding: 24px 16px 80px;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Floating Toolbar */
+    /* Floating Interactive Toolbar */
     .toolbar {
       position: fixed;
       top: 14px;
@@ -38,11 +38,11 @@
       transform: translateX(-50%);
       background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(212, 175, 55, 0.4);
+      border: 1px solid rgba(212, 175, 55, 0.5);
       border-radius: 40px;
-      padding: 8px 24px;
+      padding: 8px 22px;
       display: flex;
-      gap: 16px;
+      gap: 12px;
       align-items: center;
       z-index: 9999;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
@@ -53,6 +53,9 @@
       font-weight: 700;
       color: #f8fafc;
       letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .toolbar-badge {
@@ -69,8 +72,8 @@
       background: #2563eb;
       color: #ffffff;
       border: none;
-      padding: 8px 18px;
-      font-size: 13px;
+      padding: 8px 16px;
+      font-size: 12.5px;
       font-weight: 700;
       border-radius: 20px;
       cursor: pointer;
@@ -104,13 +107,34 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* Main Poster Canvas - Exact A3/A4 Portrait Scientific Ratio */
+    /* Editable Field Visual Indicators */
+    body.edit-mode [contenteditable="true"] {
+      outline: 1.5px dashed rgba(2, 132, 199, 0.5) !important;
+      outline-offset: 2px;
+      border-radius: 3px;
+      background: rgba(224, 242, 254, 0.25);
+      cursor: text;
+    }
+
+    body.edit-mode [contenteditable="true"]:hover {
+      outline: 1.5px dashed #0284c7 !important;
+      background: rgba(224, 242, 254, 0.5);
+    }
+
+    [contenteditable="true"]:focus {
+      outline: 2px solid #2563eb !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.25);
+    }
+
+    /* Main Poster Canvas - Exact Portrait Ratio */
     .poster-canvas {
       width: 960px;
       min-height: 1358px;
       background: #ffffff;
       border-radius: 8px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
       padding: 24px 28px 20px;
       display: flex;
       flex-direction: column;
@@ -640,6 +664,10 @@
       .toolbar {
         display: none !important;
       }
+      body.edit-mode [contenteditable="true"] {
+        outline: none !important;
+        background: transparent !important;
+      }
       .poster-canvas {
         margin: 0 !important;
         box-shadow: none !important;
@@ -651,14 +679,15 @@
     }
   </style>
 </head>
-<body>
+<body class="edit-mode">
 
-  <!-- Floating Print Toolbar -->
+  <!-- Floating Interactive Toolbar -->
   <div class="toolbar">
-    <span class="toolbar-title">🎨 ASTU Official Poster</span>
-    <span class="toolbar-badge">Enhanced Pro Design</span>
+    <span class="toolbar-title">✏️ Click Any Text to Edit</span>
     <button class="btn btn-gold" onclick="window.print()">🖨️ Print / Save as PDF</button>
-    <button class="btn btn-outline" onclick="saveCleanHTML()">💾 Save HTML</button>
+    <button class="btn btn-outline" id="toggleEditBtn" onclick="toggleEditMode()">👁️ Toggle Edit Outlines</button>
+    <button class="btn btn-outline" onclick="saveEditedHTML()">💾 Save HTML</button>
+    <button class="btn btn-outline" onclick="resetDefaults()">🔄 Reset</button>
   </div>
 
   <!-- Poster Canvas -->
@@ -669,38 +698,38 @@
       <!-- Left: ASTU University Seal -->
       <div class="logo-container">
         <div class="astu-seal">
-          <div class="astu-seal-text">ASSAM SCIENCE &amp; TECH UNIV</div>
-          <div class="astu-seal-inner">ASTU</div>
-          <div class="astu-seal-text">ESTD 2010</div>
+          <div class="astu-seal-text" contenteditable="true">ASSAM SCIENCE &amp; TECH UNIV</div>
+          <div class="astu-seal-inner" contenteditable="true">ASTU</div>
+          <div class="astu-seal-text" contenteditable="true">ESTD 2010</div>
         </div>
       </div>
 
       <!-- Center: Title & Metadata -->
       <div class="header-center">
-        <div class="univ-name">ASSAM SCIENCE AND TECHNOLOGY UNIVERSITY</div>
-        <div class="lab-name">FLUGELSOFT LABS- ADVANCED SOFTWARE ENGINEERING AND RESEARCH GROUP</div>
-        <h1 class="poster-title">
+        <div class="univ-name" contenteditable="true">ASSAM SCIENCE AND TECHNOLOGY UNIVERSITY</div>
+        <div class="lab-name" contenteditable="true">FLUGELSOFT LABS- ADVANCED SOFTWARE ENGINEERING AND RESEARCH GROUP</div>
+        <h1 class="poster-title" contenteditable="true">
           ASTU STUDY SARPANCH: AI STUDY COMPANION<br>&amp; GROUNDED NOTEBOOKLM STUDIO
         </h1>
-        <div class="author-line">Abhigyan Gogoi * Abhirup Kashyap</div>
-        <div class="supervisor-line">
+        <div class="author-line" contenteditable="true">Abhigyan Gogoi * Abhirup Kashyap</div>
+        <div class="supervisor-line" contenteditable="true">
           B.Tech CSE, Assam Science and Technology University | Supervisor: Mr. Kalyanjit Hatibaruah
         </div>
       </div>
 
       <!-- Right: FlugelSoft Official Logo -->
       <div class="flugel-logo">
-        <div class="flugel-brand">
+        <div class="flugel-brand" contenteditable="true">
           Flugel<span class="leaf">🌿</span><span class="soft">SFT</span>
         </div>
-        <div class="flugel-sub">AI &bull; WEB3 &bull; SYSTEMS</div>
+        <div class="flugel-sub" contenteditable="true">AI &bull; WEB3 &bull; SYSTEMS</div>
       </div>
     </header>
 
     <!-- ABSTRACT Section -->
     <section class="abstract-banner">
-      <div class="abstract-title">ABSTRACT</div>
-      <div class="abstract-text">
+      <div class="abstract-title" contenteditable="true">ABSTRACT</div>
+      <div class="abstract-text" contenteditable="true">
         A full stack educational research platform that eliminates academic cognitive overload and LLM hallucinations. The system achieves 99.9% generation uptime and 0% hallucination drift across university syllabi by combining Google Gemini multi-model failover pipelines, runtime Zod schema enforcement, and Firebase cloud isolation with an affective 3-panel NotebookLM studio.
       </div>
     </section>
@@ -713,15 +742,15 @@
 
         <!-- Motivation & objectives -->
         <div class="section-card">
-          <div class="section-header">Motivation &amp; objectives</div>
+          <div class="section-header" contenteditable="true">Motivation &amp; objectives</div>
           <div class="card-body">
-            <p>
+            <p contenteditable="true">
               <span class="item-label">Problem:</span> Academic cognitive overload; students spend 70% of study time passively transcribing rather than active recalling.
             </p>
-            <p>
+            <p contenteditable="true">
               <span class="item-label">The AI Bottleneck:</span> Generic chatbots (ChatGPT/Claude) hallucinate unverified facts and lack pedagogical structure for university exams.
             </p>
-            <p>
+            <p contenteditable="true">
               <span class="item-label">Goal:</span> Architect a dual-engine full-stack platform providing zero-hallucination source grounding and affective sensory computing (Web Audio synthesis + active-recall flashcards).
             </p>
           </div>
@@ -729,36 +758,36 @@
 
         <!-- System Layers & Tech Stack -->
         <div class="section-card">
-          <div class="section-header">System Layers &amp; Tech Stack</div>
+          <div class="section-header" contenteditable="true">System Layers &amp; Tech Stack</div>
           <div class="card-body" style="gap: 4px;">
-            <p><span class="item-label">Layer 1 (UI / Affective):</span> Next.js 15, React 19, Web Audio API Pink-Noise Synthesizer</p>
-            <p><span class="item-label">Layer 2 (API Gateway):</span> Next.js Serverless Route Handlers (/api/generate, /api/notebook)</p>
-            <p><span class="item-label">Layer 3 (AI Inference):</span> Google Gemini SDK (@google/genai)</p>
-            <p><span class="item-label">Layer 4 (Validation):</span> Zod Strict Schema Parser (lib/notebookSchema.ts)</p>
-            <p><span class="item-label">Layer 5 (Cloud Security):</span> Firebase Authentication (OAuth JWT) + Firebase Admin SDK</p>
-            <p><span class="item-label">Layer 6 (Persistence):</span> Cloud Firestore NoSQL Database</p>
+            <p contenteditable="true"><span class="item-label">Layer 1 (UI / Affective):</span> Next.js 15, React 19, Web Audio API Pink-Noise Synthesizer</p>
+            <p contenteditable="true"><span class="item-label">Layer 2 (API Gateway):</span> Next.js Serverless Route Handlers (/api/generate, /api/notebook)</p>
+            <p contenteditable="true"><span class="item-label">Layer 3 (AI Inference):</span> Google Gemini SDK (@google/genai)</p>
+            <p contenteditable="true"><span class="item-label">Layer 4 (Validation):</span> Zod Strict Schema Parser (lib/notebookSchema.ts)</p>
+            <p contenteditable="true"><span class="item-label">Layer 5 (Cloud Security):</span> Firebase Authentication (OAuth JWT) + Firebase Admin SDK</p>
+            <p contenteditable="true"><span class="item-label">Layer 6 (Persistence):</span> Cloud Firestore NoSQL Database</p>
           </div>
         </div>
 
         <!-- Ingestion Data & Input Constraints -->
         <div class="section-card">
-          <div class="section-header">Ingestion Data &amp; Input Constraints</div>
+          <div class="section-header" contenteditable="true">Ingestion Data &amp; Input Constraints</div>
           <div class="card-body">
-            <div class="stat-ribbon">
+            <div class="stat-ribbon" contenteditable="true">
               Callout Stat: 50,000 Characters &rarr; 8 Flashcards + 5 Diagnostic Questions
             </div>
-            <p><span class="item-label">Input Features:</span> Unstructured lecture slides, syllabus modules, textbook excerpts.</p>
-            <p><span class="item-label">Data Transformations:</span> Context chunking, boundary injection, JSON-schema prompting.</p>
-            <p><span class="item-label">Target Outputs:</span> Executive briefing, key concepts glossary, grounded FAQs, 3D flip card pairs, 4-option MCQs with rationales.</p>
+            <p contenteditable="true"><span class="item-label">Input Features:</span> Unstructured lecture slides, syllabus modules, textbook excerpts.</p>
+            <p contenteditable="true"><span class="item-label">Data Transformations:</span> Context chunking, boundary injection, JSON-schema prompting.</p>
+            <p contenteditable="true"><span class="item-label">Target Outputs:</span> Executive briefing, key concepts glossary, grounded FAQs, 3D flip card pairs, 4-option MCQs with rationales.</p>
           </div>
         </div>
 
         <!-- ACKNOWLEDGEMENTS -->
         <div class="ack-box">
-          <div class="ack-title">ACKNOWLEDGEMENTS:</div>
-          <div>Flugelsoft Co-Founder &amp; MD / CEO.</div>
-          <div style="font-weight: 700; color: #1e3a8a;">Mr. Kalyanjit Hatibaruah</div>
-          <div>Assam Science and Technology University (ASTU)</div>
+          <div class="ack-title" contenteditable="true">ACKNOWLEDGEMENTS:</div>
+          <div contenteditable="true">Flugelsoft Co-Founder &amp; MD / CEO.</div>
+          <div style="font-weight: 700; color: #1e3a8a;" contenteditable="true">Mr. Kalyanjit Hatibaruah</div>
+          <div contenteditable="true">Assam Science and Technology University (ASTU)</div>
         </div>
 
       </div>
@@ -768,43 +797,43 @@
 
         <!-- Research & Engineering Workflow -->
         <div class="section-card">
-          <div class="section-header alt-header">Research &amp; Engineering Workflow</div>
+          <div class="section-header alt-header" contenteditable="true">Research &amp; Engineering Workflow</div>
           <div class="card-body">
             <div class="workflow-container">
 
               <div class="workflow-step">
-                <div class="step-title">01 Document Ingestion &amp; Sanitization</div>
-                <div class="step-desc">Accept raw lecture text &amp; validate token boundaries</div>
+                <div class="step-title" contenteditable="true">01 Document Ingestion &amp; Sanitization</div>
+                <div class="step-desc" contenteditable="true">Accept raw lecture text &amp; validate token boundaries</div>
               </div>
               <div class="workflow-arrow">&darr;</div>
 
               <div class="workflow-step">
-                <div class="step-title">02 Identity &amp; Security Interception</div>
-                <div class="step-desc">Verify Google OAuth Bearer JWT via Firebase Admin SDK</div>
+                <div class="step-title" contenteditable="true">02 Identity &amp; Security Interception</div>
+                <div class="step-desc" contenteditable="true">Verify Google OAuth Bearer JWT via Firebase Admin SDK</div>
               </div>
               <div class="workflow-arrow">&darr;</div>
 
               <div class="workflow-step">
-                <div class="step-title">03 Prompt Boundary Injection</div>
-                <div class="step-desc">Wrap text in strict zero-extrapolation constraints</div>
+                <div class="step-title" contenteditable="true">03 Prompt Boundary Injection</div>
+                <div class="step-desc" contenteditable="true">Wrap text in strict zero-extrapolation constraints</div>
               </div>
               <div class="workflow-arrow">&darr;</div>
 
               <div class="workflow-step">
-                <div class="step-title">04 Multi-Model AI Orchestration</div>
-                <div class="step-desc">Dispatch candidate pool (Gemini 3 Preview -&gt; 3.5 -&gt; 2.5)</div>
+                <div class="step-title" contenteditable="true">04 Multi-Model AI Orchestration</div>
+                <div class="step-desc" contenteditable="true">Dispatch candidate pool (Gemini 3 Preview -&gt; 3.5 -&gt; 2.5)</div>
               </div>
               <div class="workflow-arrow">&darr;</div>
 
               <div class="workflow-step">
-                <div class="step-title">05 Runtime Schema Validation (Zod)</div>
-                <div class="step-desc">Validate structured JSON; normalize malformed keys</div>
+                <div class="step-title" contenteditable="true">05 Runtime Schema Validation (Zod)</div>
+                <div class="step-desc" contenteditable="true">Validate structured JSON; normalize malformed keys</div>
               </div>
               <div class="workflow-arrow">&darr;</div>
 
               <div class="workflow-step">
-                <div class="step-title">06 Cloud Persistence &amp; Studio Sync</div>
-                <div class="step-desc">Save to user-isolated Firestore &amp; render 3-panel studio</div>
+                <div class="step-title" contenteditable="true">06 Cloud Persistence &amp; Studio Sync</div>
+                <div class="step-desc" contenteditable="true">Save to user-isolated Firestore &amp; render 3-panel studio</div>
               </div>
 
             </div>
@@ -813,14 +842,14 @@
 
         <!-- Generative AI Fallback Protocol -->
         <div class="section-card">
-          <div class="section-header alt-header">Generative AI Fallback Protocol</div>
+          <div class="section-header alt-header" contenteditable="true">Generative AI Fallback Protocol</div>
           <div class="card-body">
-            <p><span class="item-label">Candidate Model Pool:</span><br>
+            <p contenteditable="true"><span class="item-label">Candidate Model Pool:</span><br>
             <code style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #0369a1;">process.env.GEMINI_MODEL, gemini-3-flash-preview, gemini-3.5-flash, gemini-2.5-flash.</code></p>
-            <p>
+            <p contenteditable="true">
               <span class="item-label">Failover Algorithm:</span> Intercepts HTTP 503 (Model Overloaded) or 429 (Rate Limit) exceptions; automatically falls over to the next candidate in milliseconds without client crash.
             </p>
-            <p>
+            <p contenteditable="true">
               <span class="item-label">Inference Mode:</span> responseMimeType: "application/json".
             </p>
           </div>
@@ -828,24 +857,24 @@
 
         <!-- SAMPLES (UI Showcase) -->
         <div class="section-card">
-          <div class="section-header alt-header">SAMPLES</div>
+          <div class="section-header alt-header" contenteditable="true">SAMPLES</div>
           <div class="card-body" style="padding: 8px;">
             <div class="sample-grid">
               <div class="sample-frame">
-                <div class="sample-hero-text">FORGE UNBREAKABLE KNOWLEDGE.</div>
-                <div class="sample-sub-text">CRUSH EVERY EXAM.</div>
+                <div class="sample-hero-text" contenteditable="true">FORGE UNBREAKABLE KNOWLEDGE.</div>
+                <div class="sample-sub-text" contenteditable="true">CRUSH EVERY EXAM.</div>
               </div>
               <div class="sample-frame">
-                <div class="sample-hero-text" style="color: #38bdf8;">FORGE A NEW STUDY SET</div>
-                <div class="sample-sub-text">AI Study Companion Modal</div>
+                <div class="sample-hero-text" style="color: #38bdf8;" contenteditable="true">FORGE A NEW STUDY SET</div>
+                <div class="sample-sub-text" contenteditable="true">AI Study Companion Modal</div>
               </div>
               <div class="sample-frame">
-                <div class="sample-hero-text" style="color: #4ade80;">ACTIVE RECALL VAULT</div>
-                <div class="sample-sub-text">3D Flip Flashcards &bull; Quizzes</div>
+                <div class="sample-hero-text" style="color: #4ade80;" contenteditable="true">ACTIVE RECALL VAULT</div>
+                <div class="sample-sub-text" contenteditable="true">3D Flip Flashcards &bull; Quizzes</div>
               </div>
               <div class="sample-frame">
-                <div class="sample-hero-text" style="color: #c084fc;">NOTEBOOKLM STUDIO</div>
-                <div class="sample-sub-text">3-Panel Grounded Layout</div>
+                <div class="sample-hero-text" style="color: #c084fc;" contenteditable="true">NOTEBOOKLM STUDIO</div>
+                <div class="sample-sub-text" contenteditable="true">3-Panel Grounded Layout</div>
               </div>
             </div>
           </div>
@@ -858,65 +887,65 @@
 
         <!-- Performance & Latency Benchmarks -->
         <div class="section-card">
-          <div class="section-header hero-header">Performance &amp; Latency Benchmarks</div>
+          <div class="section-header hero-header" contenteditable="true">Performance &amp; Latency Benchmarks</div>
           <div class="card-body" style="gap: 4px;">
             <div class="benchmark-row">
-              <span>Initial Page TTFB:</span>
-              <span class="benchmark-val">0.32 s (Edge CDN)</span>
+              <span contenteditable="true">Initial Page TTFB:</span>
+              <span class="benchmark-val" contenteditable="true">0.32 s (Edge CDN)</span>
             </div>
             <div class="benchmark-row">
-              <span>Average AI Generation Latency:</span>
-              <span class="benchmark-val">3.8 s (Gemini 3.5 Flash)</span>
+              <span contenteditable="true">Average AI Generation Latency:</span>
+              <span class="benchmark-val" contenteditable="true">3.8 s (Gemini 3.5 Flash)</span>
             </div>
             <div class="benchmark-row">
-              <span>Failover Recovery Time:</span>
-              <span class="benchmark-val">0.45 s</span>
+              <span contenteditable="true">Failover Recovery Time:</span>
+              <span class="benchmark-val" contenteditable="true">0.45 s</span>
             </div>
             <div class="benchmark-row">
-              <span>Route Build Success:</span>
-              <span class="benchmark-val" style="color: #15803d; background: #dcfce7;">13 / 13 Routes (100% Pass)</span>
+              <span contenteditable="true">Route Build Success:</span>
+              <span class="benchmark-val" style="color: #15803d; background: #dcfce7;" contenteditable="true">13 / 13 Routes (100% Pass)</span>
             </div>
           </div>
         </div>
 
         <!-- Breakthrough Result Box -->
         <div class="section-card">
-          <div class="section-header hero-header">Breakthrough Result Box</div>
+          <div class="section-header hero-header" contenteditable="true">Breakthrough Result Box</div>
           <div class="card-body" style="padding: 8px;">
             <div class="hero-result-box">
-              <div class="hero-number">99.9%</div>
-              <div class="hero-label">GENERATION UPTIME VIA FAILOVER</div>
+              <div class="hero-number" contenteditable="true">99.9%</div>
+              <div class="hero-label" contenteditable="true">GENERATION UPTIME VIA FAILOVER</div>
             </div>
 
-            <div class="table-title">Comparative Evaluation Table:</div>
+            <div class="table-title" contenteditable="true">Comparative Evaluation Table:</div>
             <table class="eval-table">
               <thead>
                 <tr>
-                  <th>Metric / Feature</th>
-                  <th>Generic Chatbot</th>
-                  <th>Astu Study Sarpanch</th>
+                  <th contenteditable="true">Metric / Feature</th>
+                  <th contenteditable="true">Generic Chatbot</th>
+                  <th contenteditable="true">Astu Study Sarpanch</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style="font-weight: 600;">Hallucination Rate</td>
-                  <td><span class="badge-fail">22.4% (Unbounded)</span></td>
-                  <td><span class="badge-pass">0.0% (Zod Grounded)</span></td>
+                  <td style="font-weight: 600;" contenteditable="true">Hallucination Rate</td>
+                  <td><span class="badge-fail" contenteditable="true">22.4% (Unbounded)</span></td>
+                  <td><span class="badge-pass" contenteditable="true">0.0% (Zod Grounded)</span></td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Failover Uptime</td>
-                  <td><span class="badge-fail">89.2% (Drops on 503)</span></td>
-                  <td><span class="badge-pass">99.9% (Multi-Model)</span></td>
+                  <td style="font-weight: 600;" contenteditable="true">Failover Uptime</td>
+                  <td><span class="badge-fail" contenteditable="true">89.2% (Drops on 503)</span></td>
+                  <td><span class="badge-pass" contenteditable="true">99.9% (Multi-Model)</span></td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Pedagogical Structure</td>
-                  <td>None (Text only)</td>
-                  <td style="font-weight: 700; color: #1e3a8a;">Cards + Quiz + Briefing</td>
+                  <td style="font-weight: 600;" contenteditable="true">Pedagogical Structure</td>
+                  <td contenteditable="true">None (Text only)</td>
+                  <td style="font-weight: 700; color: #1e3a8a;" contenteditable="true">Cards + Quiz + Briefing</td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Cognitive Priming</td>
-                  <td>None</td>
-                  <td style="font-weight: 700; color: #1e3a8a;">Lo-Fi Synth + Themes</td>
+                  <td style="font-weight: 600;" contenteditable="true">Cognitive Priming</td>
+                  <td contenteditable="true">None</td>
+                  <td style="font-weight: 700; color: #1e3a8a;" contenteditable="true">Lo-Fi Synth + Themes</td>
                 </tr>
               </tbody>
             </table>
@@ -925,13 +954,13 @@
 
         <!-- Conclusion & Outlook -->
         <div class="section-card">
-          <div class="section-header hero-header">Conclusion &amp; Outlook</div>
+          <div class="section-header hero-header" contenteditable="true">Conclusion &amp; Outlook</div>
           <div class="card-body">
-            <p>
+            <p contenteditable="true">
               <span class="item-label">Conclusion:</span> Proved that production-grade generative AI requires strict schema engineering, serverless failovers, and affective UI design. Successfully delivered under Flugelsoft.
             </p>
-            <p><span class="item-label">Future Outlook:</span></p>
-            <p style="padding-left: 6px;">
+            <p contenteditable="true"><span class="item-label">Future Outlook:</span></p>
+            <p style="padding-left: 6px;" contenteditable="true">
               &bull; <strong>Web3 Soulbound Tokens (SBTs):</strong> On-chain study streak credentials on Polygon.<br>
               &bull; <strong>Vector Database RAG:</strong> Multi-document synthesis across full-length textbooks via ChromaDB/Pinecone.
             </p>
@@ -940,12 +969,12 @@
 
         <!-- References -->
         <div class="section-card">
-          <div class="section-header hero-header">References</div>
+          <div class="section-header hero-header" contenteditable="true">References</div>
           <div class="card-body" style="padding: 6px 10px;">
             <div class="ref-list">
-              <div>[1] Z. Ji et al., "Survey of Hallucination in NLG," ACM Comput. Surv., vol. 55, no. 12, 2023.</div>
-              <div>[2] A. Vaswani et al., "Attention Is All You Need," NeurIPS, vol. 30, pp. 5998&ndash;6008, 2017.</div>
-              <div>[3] H.L. Roediger &amp; J.D. Karpicke, "The Power of Testing Memory," Perspect. Psychol. Sci., 2006.</div>
+              <div contenteditable="true">[1] Z. Ji et al., "Survey of Hallucination in NLG," ACM Comput. Surv., vol. 55, no. 12, 2023.</div>
+              <div contenteditable="true">[2] A. Vaswani et al., "Attention Is All You Need," NeurIPS, vol. 30, pp. 5998&ndash;6008, 2017.</div>
+              <div contenteditable="true">[3] H.L. Roediger &amp; J.D. Karpicke, "The Power of Testing Memory," Perspect. Psychol. Sci., 2006.</div>
             </div>
           </div>
         </div>
@@ -956,19 +985,42 @@
 
     <!-- Footer Strip -->
     <footer class="poster-footer">
-      <div class="footer-badge">ASTU ACADEMIC INTERNSHIP</div>
+      <div class="footer-badge" contenteditable="true">ASTU ACADEMIC INTERNSHIP</div>
     </footer>
 
   </div>
 
   <script>
-    function saveCleanHTML() {
+    function toggleEditMode() {
+      document.body.classList.toggle('edit-mode');
+      const btn = document.getElementById('toggleEditBtn');
+      if (document.body.classList.contains('edit-mode')) {
+        btn.textContent = '👁️ Hide Edit Outlines';
+      } else {
+        btn.textContent = '✏️ Show Edit Outlines';
+      }
+    }
+
+    function saveEditedHTML() {
+      const isEditMode = document.body.classList.contains('edit-mode');
+      document.body.classList.remove('edit-mode');
+
       const htmlContent = document.documentElement.outerHTML;
       const blob = new Blob([htmlContent], { type: 'text/html' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'ASTU_Study_Sarpanch_Poster_Pro.html';
+      a.download = 'ASTU_Study_Sarpanch_Poster_Edited.html';
       a.click();
+
+      if (isEditMode) {
+        document.body.classList.add('edit-mode');
+      }
+    }
+
+    function resetDefaults() {
+      if (confirm("Reset all edits back to the default poster text?")) {
+        window.location.reload();
+      }
     }
   </script>
 
