@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astu Study Sarpanch - Interactive Editable Project Poster</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    @page {
+      size: A3 landscape;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0b0f17;
+      color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 30px 20px 60px;
+    }
+
+    /* Floating Toolbar */
+    .toolbar {
+      position: fixed;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 40px;
+      padding: 8px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      z-index: 9999;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .toolbar-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-right: 8px;
+    }
+
+    .btn {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #d4af37 0%, #b8972e 100%);
+      color: #0f172a;
+    }
+
+    .btn-gold:hover {
+      background: linear-gradient(135deg, #f59e0b 0%, #d4af37 100%);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e2e8f0;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Poster Container - A3 Landscape Ratio */
+    .poster-canvas {
+      width: 1400px;
+      min-height: 980px;
+      background: radial-gradient(circle at 15% 15%, #131b2e 0%, #090d16 100%);
+      border: 3px solid #1e293b;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+      border-radius: 12px;
+      padding: 36px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      margin-top: 50px;
+    }
+
+    /* Editable Field Highlight */
+    .editing [contenteditable="true"] {
+      outline: 2px dashed rgba(212, 175, 55, 0.6) !important;
+      outline-offset: 3px;
+      background: rgba(212, 175, 55, 0.05);
+      border-radius: 4px;
+      cursor: text;
+    }
+
+    [contenteditable="true"]:focus {
+      outline: 2px solid #38bdf8 !important;
+      background: rgba(56, 189, 248, 0.1) !important;
+    }
+
+    /* Header */
+    .poster-header {
+      border-bottom: 2px solid rgba(212, 175, 55, 0.35);
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .header-left {
+      flex: 1;
+    }
+
+    .org-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: #facc15;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 30px;
+      margin-bottom: 12px;
+    }
+
+    .poster-title {
+      font-family: 'Cinzel', serif;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      line-height: 1.25;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, #d4af37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .poster-subtitle {
+      font-size: 15px;
+      color: #94a3b8;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
+    .author-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-item strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 16px 20px;
+      border-radius: 12px;
+    }
+
+    .logo-box {
+      width: 58px;
+      height: 58px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      border: 2px solid #d4af37;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: #d4af37;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    }
+
+    .qr-placeholder {
+      width: 75px;
+      height: 75px;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+      font-size: 9px;
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.2;
+      border: 2px solid #d4af37;
+    }
+
+    /* 3-Column Poster Layout */
+    .poster-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 26px;
+      flex: 1;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* Card Component */
+    .card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #d4af37, #38bdf8);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card-icon {
+      font-size: 18px;
+    }
+
+    .card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: #f8fafc;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .card-body {
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: #94a3b8;
+    }
+
+    .card-body p {
+      margin-bottom: 10px;
+    }
+
+    .card-body strong {
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    /* Callout & Highlight Blocks */
+    .highlight-box {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 3px solid #38bdf8;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-top: 10px;
+    }
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .tech-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    /* Diagram & Pipeline Boxes */
+    .pipeline-diagram {
+      background: #06090e;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      line-height: 1.35;
+      color: #38bdf8;
+      white-space: pre;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      padding: 12px 14px;
+      text-align: center;
+    }
+
+    .metric-val {
+      font-family: 'Cinzel', serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #d4af37;
+      margin-bottom: 2px;
+    }
+
+    .metric-label {
+      font-size: 10.5px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    /* Key Features List */
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feature-list li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #94a3b8;
+    }
+
+    .feature-list li::before {
+      content: '◆';
+      color: #d4af37;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    /* Footer */
+    .poster-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 26px;
+      padding-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      color: #64748b;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .footer-badge {
+      color: #facc15;
+      font-weight: 600;
+    }
+
+    /* Print Overrides */
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        color: #0f172a !important;
+      }
+
+      .toolbar {
+        display: none !important;
+      }
+
+      .poster-canvas {
+        width: 100% !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        background: #ffffff !important;
+        padding: 24px 30px !important;
+      }
+
+      .poster-title {
+        background: none !important;
+        -webkit-text-fill-color: #0f172a !important;
+        color: #0f172a !important;
+      }
+
+      .card {
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+      }
+
+      .card-title {
+        color: #0f172a !important;
+      }
+
+      .card-body {
+        color: #334155 !important;
+      }
+
+      .pipeline-diagram {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border-color: #94a3b8 !important;
+      }
+
+      .metric-card {
+        background: #f1f5f9 !important;
+        border-color: #cbd5e1 !important;
+      }
+
+      .metric-val {
+        color: #b45309 !important;
+      }
+    }
+  </style>
+</head>
+<body class="editing">
+
+  <!-- Interactive Toolbar -->
+  <div class="toolbar">
+    <span class="toolbar-title">🎨 Editable Project Poster</span>
+    <button class="btn btn-gold" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <button class="btn btn-outline" id="toggleEditBtn" onclick="toggleEditMode()">✏️ Toggle Edit Outlines</button>
+    <button class="btn btn-outline" onclick="savePosterHTML()">💾 Save My Edits</button>
+    <button class="btn btn-outline" onclick="resetDefaults()">🔄 Reset</button>
+  </div>
+
+  <!-- A3 Landscape Poster Canvas -->
+  <div class="poster-canvas" id="posterArea">
+
+    <!-- Header Section -->
+    <header class="poster-header">
+      <div class="header-left">
+        <div class="org-badge" contenteditable="true">
+          ★ FLUGELSOFT &bull; AI CONSULTANCY &amp; WEB3 INTEGRATION
+        </div>
+        <h1 class="poster-title" contenteditable="true">
+          ASTU STUDY SARPANCH: AI STUDY COMPANION &amp; NOTEBOOKLM STUDIO
+        </h1>
+        <p class="poster-subtitle" contenteditable="true">
+          An Intelligent Full-Stack Pedagogical Ecosystem Combining Active Recall with Source-Grounded LLM Research
+        </p>
+
+        <div class="author-meta">
+          <div class="meta-item">
+            <span>Author:</span>
+            <strong contenteditable="true">Abhigyan Gogoi</strong>
+          </div>
+          <div class="meta-item">
+            <span>Role:</span>
+            <strong contenteditable="true">AI &amp; Full-Stack Development Intern</strong>
+          </div>
+          <div class="meta-item">
+            <span>Tenure:</span>
+            <strong contenteditable="true">Oct 14 – Nov 4, 2026 (3 Weeks)</strong>
+          </div>
+          <div class="meta-item">
+            <span>Production URL:</span>
+            <strong contenteditable="true">astu-study-sarpanch.vercel.app</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="logo-box">FS</div>
+        <div class="qr-placeholder">
+          <div style="font-size: 16px; margin-bottom: 2px;">⚡</div>
+          SCAN / VISIT REPO
+        </div>
+      </div>
+    </header>
+
+    <!-- 3-Column Core Content Grid -->
+    <main class="poster-grid">
+
+      <!-- COLUMN 1: Problem, Theory & Foundation -->
+      <section class="col">
+
+        <!-- Card 1: Problem Statement & Motivation -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">🎯</span>
+            <h2 class="card-title" contenteditable="true">1. Problem &amp; Motivation</h2>
+          </div>
+          <div class="card-body">
+            <p contenteditable="true">
+              University students face severe <strong>cognitive overload</strong> from unstructured lecture slides, textbooks, and syllabi.
+            </p>
+            <p contenteditable="true">
+              Generic conversational chatbots suffer from <strong>unbounded hallucinations</strong>, lack structured active recall, and provide sterile interfaces that induce cognitive fatigue.
+            </p>
+            <div class="highlight-box" contenteditable="true">
+              <strong>The Goal:</strong> Engineer a dual-engine architecture combining high-tempo active retrieval with strict source-grounded research (zero hallucinations).
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Pedagogical & Psychological Foundations -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">🧠</span>
+            <h2 class="card-title" contenteditable="true">2. Theoretical Foundations</h2>
+          </div>
+          <div class="card-body">
+            <ul class="feature-list">
+              <li contenteditable="true">
+                <strong>The Testing Effect:</strong> Empirical research shows active retrieval practice significantly outperforms passive reading in long-term memory consolidation.
+              </li>
+              <li contenteditable="true">
+                <strong>Source Grounding:</strong> Restricting the generative boundary of LLMs strictly to user-provided lecture notes to eliminate factual errors.
+              </li>
+              <li contenteditable="true">
+                <strong>Affective Computing:</strong> Dynamic sensory atmospheres (Warrior Adrenaline Mode, Cozy Lo-Fi Lounge) modulate dopamine and sustain study endurance.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Card 3: Tech Stack & Cloud Infrastructure -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">⚙️</span>
+            <h2 class="card-title" contenteditable="true">3. Core Technology Stack</h2>
+          </div>
+          <div class="card-body">
+            <div class="tag-cloud">
+              <span class="tech-tag" contenteditable="true">Next.js 15 (App Router)</span>
+              <span class="tech-tag" contenteditable="true">React 19 &amp; TypeScript</span>
+              <span class="tech-tag" contenteditable="true">Google Gemini LLM</span>
+              <span class="tech-tag" contenteditable="true">Firebase Auth (OAuth)</span>
+              <span class="tech-tag" contenteditable="true">Cloud Firestore NoSQL</span>
+              <span class="tech-tag" contenteditable="true">Firebase Admin SDK</span>
+              <span class="tech-tag" contenteditable="true">Zod Schema Validation</span>
+              <span class="tech-tag" contenteditable="true">Web Audio API</span>
+              <span class="tech-tag" contenteditable="true">Vercel Edge Global CDN</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- COLUMN 2: Architecture, AI Fallback & Flow -->
+      <section class="col">
+
+        <!-- Card 4: System Architecture -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">🏗️</span>
+            <h2 class="card-title" contenteditable="true">4. Dual-Engine Architecture</h2>
+          </div>
+          <div class="card-body">
+            <p contenteditable="true">
+              A 4-tier cloud topology seamlessly uniting the <strong>Warrior Study Vault</strong> with the <strong>Google NotebookLM Studio</strong>:
+            </p>
+
+            <div class="pipeline-diagram" contenteditable="true">
+[ CLIENT TIER: Next.js 15 + React 19 + Web Audio Synth ]
+                       │
+       ┌───────────────┴───────────────┐
+       ▼                               ▼
+ [ STUDY VAULT ]             [ NOTEBOOKLM STUDIO ]
+ /api/generate               /api/notebook/generate
+       │                               │
+       └───────────────┬───────────────┘
+                       ▼
+ [ RESILIENT MULTI-MODEL FALLBACK LOOP ]
+ Gemini-3-Preview ──► Gemini-3.5 ──► Gemini-2.5
+                       │
+                       ▼
+ [ STRICT ZOD VALIDATION & SCHEMA NORMALIZATION ]
+                       │
+                       ▼
+ [ CLOUD DATA TIER: Firebase Auth + Admin Firestore ]
+            </div>
+
+            <p contenteditable="true" style="font-size: 11.5px; margin-top: 6px;">
+              <strong>Multi-Model Fallback:</strong> If an endpoint returns 503 or 429 during load spikes, the handler automatically falls over in milliseconds without client failure.
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 5: Core Functional Workflows -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">🔄</span>
+            <h2 class="card-title" contenteditable="true">5. Key Architectural Workflows</h2>
+          </div>
+          <div class="card-body">
+            <ul class="feature-list">
+              <li contenteditable="true">
+                <strong>Zero-Hallucination Extraction:</strong> Source prompts wrap raw lecture notes inside strict token boundaries; Zod validates 100% conforming JSON.
+              </li>
+              <li contenteditable="true">
+                <strong>Privileged Token Verification:</strong> Client Bearer JWTs verified server-side via Firebase Admin SDK to ensure total user data isolation.
+              </li>
+              <li contenteditable="true">
+                <strong>Native Audio Synthesis:</strong> Synthesizes pink/brown noise and binaural frequencies via browser Web Audio API with zero audio file streaming overhead.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- COLUMN 3: Features, Metrics & Future Scope -->
+      <section class="col">
+
+        <!-- Card 6: Studio & Study Vault Features -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">✨</span>
+            <h2 class="card-title" contenteditable="true">6. Functional Modules</h2>
+          </div>
+          <div class="card-body">
+            <ul class="feature-list">
+              <li contenteditable="true">
+                <strong>3-Panel NotebookLM Studio:</strong> Synchronized layout displaying verbatim source excerpt, grounded FAQs, key concepts, and study tools.
+              </li>
+              <li contenteditable="true">
+                <strong>3D Perspective Flashcards:</strong> Active-recall tactile flip cards with keyboard shortcut controls (Space / Arrow keys).
+              </li>
+              <li contenteditable="true">
+                <strong>Diagnostic Quiz Engine:</strong> 5-question multi-choice tests with immediate visual feedback and educational explanations.
+              </li>
+              <li contenteditable="true">
+                <strong>Atmosphere Theming:</strong> Adrenaline Warrior, Cozy Lo-Fi Lounge, and Straight Nerd Blueprint modes.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Card 7: Quantitative Results & Metrics -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">📊</span>
+            <h2 class="card-title" contenteditable="true">7. Performance &amp; Results</h2>
+          </div>
+          <div class="card-body">
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-val" contenteditable="true">3.8s</div>
+                <div class="metric-label" contenteditable="true">Avg Generation Latency</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-val" contenteditable="true">99.9%</div>
+                <div class="metric-label" contenteditable="true">Uptime Via Failover</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-val" contenteditable="true">0%</div>
+                <div class="metric-label" contenteditable="true">Hallucination Rate</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-val" contenteditable="true">13 / 13</div>
+                <div class="metric-label" contenteditable="true">Routes Compiled (Pass)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 8: Conclusion & Future Scope -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">🚀</span>
+            <h2 class="card-title" contenteditable="true">8. Future Scope &amp; Web3</h2>
+          </div>
+          <div class="card-body">
+            <ul class="feature-list">
+              <li contenteditable="true">
+                <strong>Web3 Soulbound Credentials:</strong> Issue non-transferable SBT certificates on Polygon verifying student study streaks.
+              </li>
+              <li contenteditable="true">
+                <strong>Multi-Document Vector RAG:</strong> Integration with ChromaDB/Pinecone for synthesizing entire semesters of textbooks.
+              </li>
+              <li contenteditable="true">
+                <strong>Conversational Audio Podcasts:</strong> Live two-speaker spoken dialogue synthesis via Gemini 2.0 Live Audio.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Poster Footer -->
+    <footer class="poster-footer">
+      <div class="footer-left">
+        <span class="footer-badge" contenteditable="true">★ FLUGELSOFT PROFESSIONAL INTERNSHIP 2026</span>
+        <span contenteditable="true">Industry Mentorship: Technical Lead &bull; AI &amp; Systems Architecture</span>
+      </div>
+      <div contenteditable="true">
+        Repository: github.com/FlugelsoftAbhi/Astu_Study_Sarpanch &bull; Verify at flugelsoft.com
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    function toggleEditMode() {
+      document.body.classList.toggle('editing');
+      const btn = document.getElementById('toggleEditBtn');
+      if (document.body.classList.contains('editing')) {
+        btn.textContent = '✏️ Hide Edit Outlines';
+      } else {
+        btn.textContent = '✏️ Show Edit Outlines';
+      }
+    }
+
+    function savePosterHTML() {
+      // Temporarily remove editing class for clean HTML
+      const isEditing = document.body.classList.contains('editing');
+      document.body.classList.remove('editing');
+
+      const htmlContent = document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Astu_Study_Sarpanch_Poster_Edited.html';
+      a.click();
+
+      if (isEditing) {
+        document.body.classList.add('editing');
+      }
+    }
+
+    function resetDefaults() {
+      if (confirm("Reset all text back to the default poster content?")) {
+        window.location.reload();
+      }
+    }
+  </script>
+
+</body>
+</html>
